@@ -25,8 +25,27 @@ features_list = ["poi", "salary"]
 data = featureFormat(data_dict, features_list)
 labels, features = targetFeatureSplit(data)
 
+from sklearn import cross_validation as cv
 
+#random_state controsl which points go into the training set and which are used for testing
+features_train, features_test, labels_train, labels_test = cv.train_test_split(features, labels, test_size=.3, random_state=42)
 
 ### it's all yours from here forward!  
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+
+
+clf = DecisionTreeClassifier()
+clf.fit(features_train,labels_train)
+
+pred = clf.predict(features_test)
+
+accuracy = accuracy_score(labels_test, pred)
+
+print accuracy
+
+
+
 
 

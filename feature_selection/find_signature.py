@@ -39,5 +39,52 @@ labels_train   = labels_train[:150]
 
 ### your code goes here
 
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+
+clf = DecisionTreeClassifier()
+clf.fit(features_train, labels_train)
+pred = clf.predict(features_train)
+acc_train = accuracy_score(labels_train, pred)
+acc_test = accuracy_score(labels_test, clf.predict(features_test))
+
+print "Num. of data points of train set: ", len(labels_train)
+print "acc_train: ", acc_train,"acc_test: ", acc_test
+
+
+"""
+pull out the word that's causing most of the discrimination of the decision tree.
+What is it? Does it make sense as a word that's uniquely tied 
+to either Chris Germany or Sara Shackleton, a signature of sorts?
+"""
+
+for index, importance in enumerate(clf.feature_importances_):
+	if importance>.2:
+		print index, vectorizer.get_feature_names()[index], importance
+		print 
+
+
+"""
+This word seems like an outlier in a certain sense, so let's remove it 
+and refit.
+
+Go back to text_learning/vectorize_text.py, and remove this word 
+from the emails using the same method you used to remove "sara", "chris", etc.
+Rerun vectorize_text.py, and once that finishes, rerun find_signature.py.
+Any other outliers pop up? What word is it? Seem like a signature-type word?
+(Define an outlier as a feature with importance >0.2, as before).
+
+"""
+
+"""
+Update vectorize_test.py one more time, and rerun.
+Then run find_signature.py again. 
+Any other important features (importance>0.2) arise?
+How many? Do any of them look like "signature words", 
+or are they more "email content" words, 
+that look like they legitimately come from the text of the messages?
+
+"""
+
 
 

@@ -34,7 +34,7 @@ def Draw(pred, features, poi, mark_poi=False, name="image.png", f1_name="feature
     plt.xlabel(f1_name)
     plt.ylabel(f2_name)
     plt.savefig(name)
-    plt.show()
+    #plt.show()
 
 
 
@@ -42,6 +42,13 @@ def Draw(pred, features, poi, mark_poi=False, name="image.png", f1_name="feature
 data_dict = pickle.load( open("../final_project/final_project_dataset.pkl", "r") )
 ### there's an outlier--remove it! 
 data_dict.pop("TOTAL", 0)
+
+
+stock_options = [features['exercised_stock_options'] for key, features in data_dict.items() if isinstance(features['exercised_stock_options'], int)]
+print 'min and max of stock options: ', min(stock_options), max(stock_options)	
+
+salaries = [features['salary'] for key, features in data_dict.items() if isinstance(features['salary'], int)]
+print 'min and max of salaries: ', min(salaries), max(salaries)	
 
 
 ### the input features we want to use 
@@ -60,17 +67,105 @@ poi, finance_features = targetFeatureSplit( data )
 ### (as it's currently written, the line below assumes 2 features)
 for f1, f2 in finance_features:
     plt.scatter( f1, f2 )
-plt.show()
+#plt.show()
 
 ### cluster here; create predictions of the cluster labels
 ### for the data and store them to a list called pred
+"""
+Deploy k-means clustering on the financial_features data,
+with 2 clusters specified as a parameter. 
 
+Store your cluster predictions to a list called pred,
+so that the Draw() command at the bottom of the script works properly.
+In the scatterplot that pops up, are the clusters what you expected?
+"""
+from sklearn.cluster import KMeans
+kmeans = KMeans(n_clusters=2, n_init=10, max_iter=300)
+kmeans.fit(finance_features)
+pred = kmeans.predict(finance_features)
+
+
+### rename the "name" parameter when you change the number of features
+### so that the figure gets saved to a different file
+try:
+    Draw(pred, finance_features, poi, mark_poi=False, name="1st.pdf", f1_name=feature_1, f2_name=feature_2)
+except NameError:
+    print "no predictions object named pred found, no clusters to plot"
+
+"""
+Add a third feature to features_list, "total_payments". 
+Now rerun clustering, using 3 input features instead of 2 
+(obviously we can still only visualize the original 2 dimensions). 
+Compare the plot with the clusterings to the one you obtained with 2 input features.
+Do any points switch clusters? How many? This new clustering, 
+using 3 features, couldn't have been guessed by eye--it was the k-means algorithm
+that identified it.
+(You'll need to change the code that makes the scatterplot to accommodate 
+3 features instead of 2, see the comments in the starter code for instructions 
+on how to do this.)
+"""
+
+features_list.append("total_payments")
+data = featureFormat(data_dict, features_list )
+poi, finance_features = targetFeatureSplit( data )
+
+kmeans = KMeans(n_clusters=2, n_init=10, max_iter=300)
+kmeans.fit(finance_features)
+pred = kmeans.predict(finance_features)
 
 
 
 ### rename the "name" parameter when you change the number of features
 ### so that the figure gets saved to a different file
 try:
-    Draw(pred, finance_features, poi, mark_poi=False, name="clusters.pdf", f1_name=feature_1, f2_name=feature_2)
+    Draw(pred, finance_features, poi, mark_poi=False, name="2st.pdf", f1_name=feature_1, f2_name=feature_2)
 except NameError:
     print "no predictions object named pred found, no clusters to plot"
+
+
+
+
+###
+"""
+Apply feature scaling to your k-means clustering code from the last lesson,
+on the "salary" and "exercised_stock_options" features (use only these two features).
+What would be the rescaled value of a "salary" feature 
+that had an original value of $200,000, and an "exercised_stock_options" 
+feature of $1 million?
+(Be sure to represent these numbers as floats, not integers!)
+
+
+"""
+
+
+
+del features_list[features_list.index("total_payments")]
+data = featureFormat(data_dict, features_list )
+poi, finance_features = targetFeatureSplit( data )
+
+
+
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
+scaled = scaler.fit_transform(finance_features)
+
+
+print scaled[3,:], scaler.data_min_, scaler.data_max_
+
+print scaler.transform([200000.0, 1000000.0])
+
+
+"""
+One could argue about whether rescaling the financial data 
+is strictly necessary, perhaps we want to keep the information 
+that a $100,000 salary and $40,000,000 in stock options
+are dramatically different quantities. 
+
+What if we wanted to cluster based on "from_messages" 
+(the number of email messages sent from a particular email account)
+and "salary"? Would feature scaling be unnecessary in this case,
+or critical?
+
+ANS : CRITICAL
+"""

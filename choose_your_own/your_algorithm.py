@@ -30,12 +30,39 @@ plt.show()
 
 ### your code here!  name your classifier object clf if you want the 
 ### visualization code (prettyPicture) to show you the decision boundary
+from time import time
 
 
+t0 = time()
+from sklearn.neighbors import KNeighborsClassifier
+#print "imported KNeighborsClassifier : %.3f" %(time()-t0)
+t0 = time()
+from sklearn.ensemble import AdaBoostClassifier
+#print "imported AdaBoostClassifier : %.3f" %(time()-t0)
+t0 = time()
+from sklearn.ensemble import RandomForestClassifier
+t0 = time()
+#print "imported RandomForestClassifier : %.3f" %(time()-t0)
+t0 = time()
+from sklearn.metrics import accuracy_score
+#print "imported accuracy_score : %.3f" %(time()-t0)
 
+print "initializing"
+algorithms ={"knn":KNeighborsClassifier(n_neighbors = 10, weights  = "distance")
+				,"ab":AdaBoostClassifier(n_estimators =15)
+				,"rf":RandomForestClassifier(n_estimators =50
+											,min_samples_split = 50
+											,max_features = .1)}
 
-
-
+for key in algorithms.keys():
+	print ("\n %s algorithm" %(key))
+	clf = algorithms[key]
+	#print ("start training classifier")
+	clf.fit(features_train, labels_train)
+	#print("start prediction")
+	pred = clf.predict(features_test)
+	accuracy = accuracy_score(labels_test, pred)
+	print ("accuracy of this classifier is %.4f" %(accuracy))
 
 
 try:

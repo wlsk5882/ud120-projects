@@ -21,7 +21,7 @@ dictionary = pickle.load( open("../final_project/final_project_dataset_modified.
 
 ### list the features you want to look at--first item in the 
 ### list will be the "target" feature
-features_list = ["bonus", "salary"]
+features_list = ["bonus", "salary"] #long_term_incentive
 data = featureFormat( dictionary, features_list, remove_any_zeroes=True)
 target, features = targetFeatureSplit( data )
 
@@ -29,17 +29,25 @@ target, features = targetFeatureSplit( data )
 from sklearn.cross_validation import train_test_split
 feature_train, feature_test, target_train, target_test = train_test_split(features, target, test_size=0.5, random_state=42)
 train_color = "b"
-test_color = "b"
+test_color = "r"
 
-
+from sklearn.linear_model import LinearRegression
 
 ### Your regression goes here!
 ### Please name it reg, so that the plotting code below picks it up and 
 ### plots it correctly. Don't forget to change the test_color above from "b" to
 ### "r" to differentiate training points from test points.
 
+print(feature_train[0:5],target_train[0:5])
 
+reg = LinearRegression()
+reg.fit(feature_train, target_train)
+print "slope : %.2f" %(reg.coef_)
+print "intercept : %.2f" %(reg.intercept_)
 
+print "R squared of trainset: %.2f" %(reg.score(feature_train, target_train))
+
+print "R squared of testset: %.2f" %(reg.score(feature_test, target_test))
 
 
 
@@ -65,6 +73,18 @@ try:
 except NameError:
     pass
 plt.xlabel(features_list[1])
+
+# added later
+reg.fit(feature_test, target_test)
+plt.plot(feature_train, reg.predict(feature_train), color="b")
+
+print "slope 2: %.2f" %(reg.coef_)
+print "intercept 2 : %.2f" %(reg.intercept_)
+
+print "R squared of trainset: %.2f" %(reg.score(feature_train, target_train))
+print "R squared of testset: %.2f" %(reg.score(feature_test, target_test))
+
+
 plt.ylabel(features_list[0])
 plt.legend()
 plt.show()
